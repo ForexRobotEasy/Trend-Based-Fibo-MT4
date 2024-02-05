@@ -1,0 +1,66 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                 Trend Based Fibo MT4 |
+//|                                        https://www.forexroboteasy.com |
+//|                                           Developed by Forex Robot Easy Team |
+//+------------------------------------------------------------------+
+
+#property strict
+
+// Input parameters
+input int levels = 7;  // Number of Fibonacci levels to calculate
+input int frame = 100; // Frame for Fibonacci level calculations
+
+// Trend calculation function
+void CalculateTrendBasedFibo()
+{
+   double mainTrendHigh = High[frame];
+   double mainTrendLow = Low[frame];
+   
+   double retracementTrendHigh = High[0];
+   double retracementTrendLow = Low[0];
+   
+   double range = mainTrendHigh - mainTrendLow;
+   
+   // Calculate Fibonacci levels
+   for(int i = 0; i < levels; i++)
+   {
+      double level = mainTrendLow + range * i / levels;
+      ObjectCreate('FiboLevel' + IntegerToString(i), OBJ_HLINE, 0, Time[frame], level);
+   }
+}
+
+// Initialization function
+int OnInit()
+{
+   CalculateTrendBasedFibo();
+   
+   return(INIT_SUCCEEDED);
+}
+
+// Deinitialization function
+void OnDeinit(const int reason)
+{
+   // Remove Fibonacci levels
+   for(int i = 0; i < levels; i++)
+   {
+      ObjectDelete('FiboLevel' + IntegerToString(i));
+   }
+}
+
+// Update function
+void OnTick()
+{
+   // Check if frame has changed
+   if(frame != 0 && frame != MathMod(Time[0], frame))
+   {
+      // Remove previous Fibonacci levels
+      for(int i = 0; i < levels; i++)
+      {
+         ObjectDelete('FiboLevel' + IntegerToString(i));
+      }
+      
+      // Recalculate Fibonacci levels
+      CalculateTrendBasedFibo();
+   }
+}
